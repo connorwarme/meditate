@@ -3,8 +3,10 @@ import React from "react";
 import Gradient from "@/components/Gradient";
 import { MEDITATION_DATA } from "@/constants/MeditationData";
 import meditationImages from "@/constants/meditation-images";
+import { useRouter } from "expo-router";
 
 const Nature = () => {
+  const router = useRouter();
   return (
     <View className="flex-1">
       <Gradient colors={["#161b2e", "#0a4d4a", "#766e67"]}>
@@ -23,7 +25,10 @@ const Nature = () => {
             showsVerticalScrollIndicator={false}
             className="mb-20"
             renderItem={({ item }) => (
-              <Pressable className="my-3 h-48 rounded-md overflow-hidden">
+              <Pressable
+                className="my-3 h-48 rounded-md overflow-hidden"
+                onPress={() => router.push(`/meditate/${item.id}`)}
+              >
                 <ImageBackground
                   source={meditationImages[item.id - 1]}
                   className="flex-1 rounded-xl justify-center"

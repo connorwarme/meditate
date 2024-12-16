@@ -11,6 +11,7 @@ import { useLocalSearchParams, router } from "expo-router";
 import AFFIRMATION_GALLERY from "@/constants/affirmation-gallery";
 import { GalleryPreview } from "@/constants/models/Affirmations";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import BackButton from "@/components/BackButton";
 
 const AffirmationPage = () => {
   const { itemId } = useLocalSearchParams();
@@ -45,14 +46,15 @@ const AffirmationPage = () => {
           colors={["rgba(0,0,0,0.2)", "rgba(0,0,0,0.8)"]}
           gradientStyle={{ flex: 1, height: "100%" }}
         >
-          <View className="">
-            <Pressable onPress={() => router.back()} className="mt-6 ml-6">
+          <View className="flex-1">
+            <BackButton />
+            {/* <Pressable onPress={() => router.back()} className="mt-6 ml-6">
               <Ionicons
                 name="chevron-back-circle-outline"
                 size={48}
                 color="white"
               />
-            </Pressable>
+            </Pressable> */}
           </View>
           <ScrollView className="flex-1 mt-24 px-4">
             <View className="flex-1 h-full justify-center">
