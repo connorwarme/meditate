@@ -1,5 +1,5 @@
 import { View, Text, ImageBackground } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import meditationImages from "@/constants/meditation-images";
 import Gradient from "@/components/Gradient";
 import { useLocalSearchParams } from "expo-router";
@@ -7,29 +7,34 @@ import Button from "@/components/Button";
 import BackButton from "@/components/BackButton";
 import { Audio } from "expo-av";
 import { MEDITATION_DATA, AUDIO_FILES } from "@/constants/MeditationData";
+import { useRouter } from "expo-router";
+import { MeditationDurationContext } from "@/context/meditationDuration";
 
 const Meditation = () => {
   const [isMeditating, setIsMeditating] = useState(false);
-  const [meditationTime, setMeditationTime] = useState(0);
+  // const [meditationTime, setMeditationTime] = useState(0);
   const [audio, setAudio] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
   const { id } = useLocalSearchParams();
+  const router = useRouter();
+
+  const { duration, setDuration } = useContext(MeditationDurationContext);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
 
-    if (meditationTime === 0) {
+    if (duration === 0) {
       setIsMeditating(false);
       return;
     }
     if (isMeditating) {
       timer = setTimeout(() => {
-        setMeditationTime((prev) => prev - 1);
+        setDuration((prev: number) => prev - 1);
       }, 1000);
     }
     return () => clearTimeout(timer);
-  }, [isMeditating, meditationTime]);
+  }, [isMeditating, duration]);
 
   // on unmount, unload the audio
   useEffect(() => {
@@ -39,12 +44,16 @@ const Meditation = () => {
     };
   }, [audio]);
 
-  const formattedTimeMinutes = Math.floor(meditationTime / 60)
+  useEffect(() => {
+    return () => {
+      setDuration(60);
+    };
+  }, []);
+
+  const formattedTimeMinutes = Math.floor(duration / 60)
     .toString()
     .padStart(2, "0");
-  const formattedTimeSeconds = (meditationTime % 60)
-    .toString()
-    .padStart(2, "0");
+  const formattedTimeSeconds = (duration % 60).toString().padStart(2, "0");
 
   const initializeAudio = async () => {
     // find the audio file name from the MEDITATION_DATA array
@@ -70,9 +79,11 @@ const Meditation = () => {
   };
 
   const toggleMeditation = async () => {
-    if (meditationTime === 0) {
-      setMeditationTime(60);
-    }
+    setDuration((prev) => (prev === 0 ? 60 : prev));
+    console.log(duration);
+    // if (duration === 0) {
+    //   console.log("meditation over!");
+    // }
     setIsMeditating(!isMeditating);
 
     await toggleSound();
@@ -98,7 +109,15 @@ const Meditation = () => {
             </View>
           </View>
           <View className="px-8 py-8">
-            <Button title={"Start Meditation"} onPress={toggleMeditation} />
+            <Button
+              title={"Adjust Duration"}
+              onPress={() => router.push("/adjust-duration")}
+            />
+            <Button
+              title={isMeditating ? "Pause Meditation" : "Start Meditation"}
+              onPress={toggleMeditation}
+              disabled={duration === 0}
+            />
           </View>
         </Gradient>
       </ImageBackground>
